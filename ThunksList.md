@@ -127,6 +127,7 @@
 | EventWriteString                           | 不存在时，返回ERROR_NOT_SUPPORTED。
 | GetDynamicTimeZoneInformationEffectiveYears| 不存在时，直接读取`Time Zones`注册表。
 | AddMandatoryAce                            | 不存在时，调用RtlCopySid。
+| GetTokenInformation                        | 返回假装的 TokenVirtualizationAllowed、TokenAppContainerSid等。
 
 ## bcrypt.dll
 | 函数                                       | Fallback
@@ -543,6 +544,9 @@
 | Wow64GetThreadContext                      | 不存在时，调用GetThreadContext或者返回ERROR_INVALID_PARAMETER。
 | SetDefaultDllDirectories                   | 不存在时，手工控制LoadLibrary加载顺序。
 | GetCurrentPackageFullName                  | 返回 APPMODEL_ERROR_NO_PACKAGE。
+| OpenProcess                                | 额外处理 PROCESS_QUERY_LIMITED_INFORMATION、PROCESS_SET_LIMITED_INFORMATION。
+| GetThreadDescription                       | 返回空字符串。
+| SetThreadDescription                       | 返回 `E_NOTIMPL`。
 
 ## mfplat.dll
 | 函数                                       | Fallback
@@ -743,6 +747,12 @@
 | GetWindowDpiAwarenessContext               | 调用 GetProcessDpiAwareness。
 | GetDisplayAutoRotationPreferences          | 返回 ORIENTATION_PREFERENCE_NONE。
 | SetDisplayAutoRotationPreferences          | 假装成功。
+| GetPointerInfoHistory                      | 报告错误 ERROR_INVALID_PARAMETER。
+| GetPointerTouchInfo                        | 报告错误 ERROR_INVALID_PARAMETER。
+| GetPointerTouchInfoHistory                 | 报告错误 ERROR_INVALID_PARAMETER。
+| IsMouseInPointerEnabled                    | 返回关闭。
+| EnableMouseInPointer                       | 假装处于关闭状态。
+| GetPointerDeviceRects                      | 报告错误 ERROR_INVALID_PARAMETER。
 
 ## userenv.dll
 | 函数                                       | Fallback
@@ -807,3 +817,5 @@
 | FreeAddrInfoEx(W)                          | 不存在时，内部实现。
 | GetAddrInfoW                               | 不存在时，调用getaddrinfo。
 | FreeAddrInfoW                              | 不存在时，内部实现。
+| WSASocketW(A)                              | 低于6.1.7601时自动去除 `WSA_FLAG_NO_HANDLE_INHERIT`。
+| WSAIoctl                                   | 低于6.0时，`SIO_BASE_HANDLE` 代码返回SOCKET自身。
